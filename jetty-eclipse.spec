@@ -35,28 +35,29 @@
 %define homedir     %{_datadir}/%{name}
 
 Name:           jetty-eclipse
-Version:        6.1.21
-Release:        1%{?dist}
-Summary:        The Jetty Webserver and Servlet Container
+Version:        6.1.24
+Release:        2%{?dist}
+Summary:        The Jetty Webserver and Servlet Container for Eclipse
 
 Group:          Applications/Internet
 License:        ASL 2.0
 URL:            http://jetty.mortbay.org/jetty/
-Source0:        http://dist.codehaus.org/%{name}/%{jettyname}-%{version}/%{jettyname}-%{version}-src.zip
+Source0:        http://dist.codehaus.org/%{jettyname}/%{jettyname}-%{version}/%{jettyname}-%{version}-src.zip
 #Source1:       djetty.script
 #Source2:        jetty.init
 Source3:        jetty.logrotate
 Source4:        jetty-depmap.xml
 Source7:        jetty-settings.xml
 # Generated with mvn ant:ant
-Source8:        jetty-build-files.tar.gz
+Source8:        jetty-build-files-%{version}.tar.gz
 # Grab the OSGi manifests
-Source9:        jetty-manifests.tar.gz
+Source9:        jetty-manifests-%{version}.tar.gz
 Patch0:     disable-modules.patch
 # Fix issues with CookieDump example
-Patch1:         jetty-cookiedump.patch
+# Patch1:         jetty-cookiedump.patch
 # Fix issues with error logging
-Patch2:         jetty-log.patch
+# Patch2:         jetty-log.patch
+Patch4:		jetty-plugin-fix-site.patch
 # Patch5:       jetty-unix.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -64,6 +65,8 @@ BuildArch:      noarch
 BuildRequires:  jpackage-utils >= 0:1.6
 %if %{with_maven}
 # build only
+# build only
+BuildRequires: maven2-common-poms
 BuildRequires: maven2-plugin-antrun
 BuildRequires: maven2-plugin-assembly
 BuildRequires: maven2-plugin-compiler
@@ -128,8 +131,9 @@ for f in $(find . -name "*.?ar"); do rm $f; done
 find . -name "*.class" -exec rm {} \;
 
 %patch0 -b .sav
-%patch1 -b .sav
-%patch2 -b .sav
+#%patch1 -b .sav
+#%patch2 -b .sav
+%patch4 -b .sav
 #%patch5
 
 cp %{SOURCE7} settings.xml
@@ -215,20 +219,20 @@ ln -s $(build-classpath apache-tomcat-apis/tomcat-servlet2.5-api) $M2_REPO/org/m
 mkdir -p $M2_REPO/javax/servlet/jsp/jsp-api/2.1/
 ln -s $(build-classpath apache-tomcat-apis/tomcat-jsp2.1-api) $M2_REPO/javax/servlet/jsp/jsp-api/2.1/jsp-api-2.1.jar
 
-mkdir -p $M2_REPO/org/mortbay/jetty/jetty/6.1.21
-ln -s ../../../../../../modules/jetty/target/jetty-6.1.21.jar $M2_REPO/org/mortbay/jetty/jetty/6.1.21/jetty-6.1.21.jar
-mkdir -p $M2_REPO/org/mortbay/jetty/jetty-client/6.1.21/
-ln -s ../../../../../../extras/client/target/jetty-client-6.1.21.jar $M2_REPO/org/mortbay/jetty/jetty-client/6.1.21/jetty-client-6.1.21.jar
-mkdir -p $M2_REPO/org/mortbay/jetty/jetty-naming/6.1.21/
-ln -s ../../../../../../modules/naming/target/jetty-naming-6.1.21.jar $M2_REPO/org/mortbay/jetty/jetty-naming/6.1.21/jetty-naming-6.1.21.jar
-mkdir -p $M2_REPO/org/mortbay/jetty/jetty-plus/6.1.21/
-ln -s ../../../../../../modules/plus/target/jetty-plus-6.1.21.jar $M2_REPO/org/mortbay/jetty/jetty-plus/6.1.21/jetty-plus-6.1.21.jar
-mkdir -p $M2_REPO/org/mortbay/jetty/jetty-sslengine/6.1.21/
-ln -s ../../../../../../extras/sslengine/target/jetty-sslengine-6.1.21.jar $M2_REPO/org/mortbay/jetty/jetty-sslengine/6.1.21/jetty-sslengine-6.1.21.jar
-mkdir -p $M2_REPO/org/mortbay/jetty/jetty-util/6.1.21/
-ln -s ../../../../../../modules/util/target/jetty-util-6.1.21.jar $M2_REPO/org/mortbay/jetty/jetty-util/6.1.21/jetty-util-6.1.21.jar
-mkdir -p $M2_REPO/org/mortbay/jetty/jetty-util5/6.1.21/
-ln -s ../../../../../../modules/util5/target/jetty-util5-6.1.21.jar $M2_REPO/org/mortbay/jetty/jetty-util5/6.1.21/jetty-util5-6.1.21.jar
+mkdir -p $M2_REPO/org/mortbay/jetty/jetty/%{version}
+ln -s ../../../../../../modules/jetty/target/jetty-%{version}.jar $M2_REPO/org/mortbay/jetty/jetty/%{version}/jetty-%{version}.jar
+mkdir -p $M2_REPO/org/mortbay/jetty/jetty-client/%{version}/
+ln -s ../../../../../../extras/client/target/jetty-client-%{version}.jar $M2_REPO/org/mortbay/jetty/jetty-client/%{version}/jetty-client-%{version}.jar
+mkdir -p $M2_REPO/org/mortbay/jetty/jetty-naming/%{version}/
+ln -s ../../../../../../modules/naming/target/jetty-naming-%{version}.jar $M2_REPO/org/mortbay/jetty/jetty-naming/%{version}/jetty-naming-%{version}.jar
+mkdir -p $M2_REPO/org/mortbay/jetty/jetty-plus/%{version}/
+ln -s ../../../../../../modules/plus/target/jetty-plus-%{version}.jar $M2_REPO/org/mortbay/jetty/jetty-plus/%{version}/jetty-plus-%{version}.jar
+mkdir -p $M2_REPO/org/mortbay/jetty/jetty-sslengine/%{version}/
+ln -s ../../../../../../extras/sslengine/target/jetty-sslengine-%{version}.jar $M2_REPO/org/mortbay/jetty/jetty-sslengine/%{version}/jetty-sslengine-%{version}.jar
+mkdir -p $M2_REPO/org/mortbay/jetty/jetty-util/%{version}/
+ln -s ../../../../../../modules/util/target/jetty-util-%{version}.jar $M2_REPO/org/mortbay/jetty/jetty-util/%{version}/jetty-util-%{version}.jar
+mkdir -p $M2_REPO/org/mortbay/jetty/jetty-util5/%{version}/
+ln -s ../../../../../../modules/util5/target/jetty-util5-%{version}.jar $M2_REPO/org/mortbay/jetty/jetty-util5/%{version}/jetty-util5-%{version}.jar
 
 mkdir -p $M2_REPO/jdbm/jdbm/1.0
 ln -s $DUMMY_FILE $M2_REPO/jdbm/jdbm/1.0/jdbm-1.0.jar
@@ -319,10 +323,10 @@ ln -s $DUMMY_FILE $M2_REPO/org/codehaus/plexus/plexus-component-api/1.0-alpha-20
 
 tar xzf %{SOURCE8} # build files
 tar xzf %{SOURCE9} # osgi manifests
-ant -Dmaven.mode.offline=true -Dmaven.repo.local=$M2_REPO -Djunit.skipped=true -Dmaven.test.skip=true javadoc package
+ant -Dmaven.mode.offline=true -Dmaven.repo.local=$M2_REPO -Djunit.skipped=true -Dmaven.test.skip=true package
 
 mkdir -p lib
-cp modules/jetty/target/jetty-6.1.21.jar modules/util/target/jetty-util-6.1.21.jar lib/
+cp modules/jetty/target/jetty-%{version}.jar modules/util/target/jetty-util-%{version}.jar lib/
 
 %endif
 
@@ -406,5 +410,13 @@ rm -rf $RPM_BUILD_ROOT
 %doc VERSION.txt
 
 %changelog
+* Mon Dec 13 2010 Jeff Johnston <jjohnstn@redhat.com> - 6.1.24-2
+- Resolves: #661845
+- Bump version to allow make tag to work.
+
+* Thu Dec 09 2010 Jeff Johnston <jjohnstn@redhat.com> - 6.1.24-1
+- Resolves: #661845
+- Rebase to release based on jetty-6.1.24.
+
 * Wed Feb 17 2010 Jeff Johnston <jjohnstn@redhat.com> - 6.1.21-1
 - Initial release based on jetty-6.1.21-7.
